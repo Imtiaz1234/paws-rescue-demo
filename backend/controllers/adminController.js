@@ -39,7 +39,7 @@ exports.verifyRescue = async (req, res) => {
 };
 
 
-// Unverify a rescue center - updates verified field to false
+/* Unverify a rescue center - updates verified field to false
 exports.unverifyRescue = async (req, res) => {
   try {
     const rescueId = req.params.id;
@@ -60,7 +60,7 @@ exports.unverifyRescue = async (req, res) => {
     res.status(500).json({ message: 'Server error unverifying rescue center' });
   }
 };
-
+*/
 
 // Get users (admin view)
 exports.getUsers = async (req, res) => {
@@ -128,6 +128,32 @@ exports.updateCat = async (req, res) => {
 exports.deleteCat = async (req, res) => {
   res.status(501).json({ message: 'Not implemented: deleteCat' });
 };
+
+
+// Remove the duplicate unverifyRescue function (keep only one)
+exports.unverifyRescue = async (req, res) => {
+  try {
+    const rescueId = req.params.id;
+    const updatedRescue = await RescueCenter.findByIdAndUpdate(
+      rescueId,
+      { verified: false },
+      { new: true }
+    );
+
+    if (!updatedRescue) {
+      return res.status(404).json({ message: 'Rescue center not found' });
+    }
+
+    console.log('Backend updated rescue:', updatedRescue);
+    res.json(updatedRescue);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error unverifying rescue center' });
+  }
+};
+
+
+/*
 exports.unverifyRescue = async (req, res) => {
   try {
     const rescueId = req.params.id;
@@ -150,3 +176,4 @@ exports.unverifyRescue = async (req, res) => {
     res.status(500).json({ message: 'Server error unverifying rescue center' });
   }
 };
+*/

@@ -31,3 +31,21 @@ exports.makeDonation = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+exports.getDonationUsage = async (req, res) => {
+  try {
+    const donations = await Donation.aggregate([
+      {
+        $group: {
+          _id: '$purpose',
+          totalAmount: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    res.json(donations);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};

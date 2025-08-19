@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
-//console.log('Exports from adminController:', Object.keys(adminController));
 const auth = require('../middleware/auth');
 const roleCheck = require('../middleware/roleCheck');
+const User = require('../models/User'); // Add User model here for delete route
+//const authMiddleware = require('../middleware/auth');
+//const adminRoleCheck = require('../middleware/roleCheck');
+
+
 
 // Test route to check if admin routes are working and accessible
 router.get('/test', (req, res) => {
@@ -29,5 +33,16 @@ router.get('/rescue-centers', adminController.getRescueCenters);
 router.post('/unverify-rescue/:id', adminController.unverifyRescue);
 
 
+// Updated DELETE user route with middleware to protect the route
+router.delete('/users/:id', auth, roleCheck('Admin'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const deletedUser = await User.findByIdAndDelete(userId);
+    if (!deletedUser) return res.status(404).json({ message: 'User not found' });
+    return res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error deleting user' });
+  }
+});
 
 module.exports = router;

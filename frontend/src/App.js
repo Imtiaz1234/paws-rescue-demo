@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
+import FavoritesSync from './components/FavoritesSync'; // Import the new component
 import Home from './pages/Home';
 import Stories from './pages/Stories';
 import AdminDashboard from './pages/AdminDashboard';
@@ -10,7 +11,7 @@ import Register from './pages/Register';
 import CatRegister from './pages/CatRegister';
 import AdoptionForm from './pages/AdoptionForm';
 import Favorites from './pages/Favorites';
-import RescueCenterDashboard from './pages/RescueCenterDashboard'; // Import added
+import RescueCenterDashboard from './pages/RescueCenterDashboard';
 
 import { AuthProvider } from './context/AuthContext';
 import { FavoritesProvider } from './context/FavoritesContext';
@@ -25,6 +26,7 @@ function App() {
         <FavoritesProvider>
           <Router>
             <Navbar />
+            <FavoritesSync /> {/* Add FavoritesSync here */}
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/stories" element={<Stories />} />
@@ -50,7 +52,7 @@ function App() {
               />
 
               <Route 
-                path="/rescue-dashboard"  // New route added
+                path="/rescue-dashboard"
                 element={
                   <ProtectedRoute role="Rescue">
                     <RescueCenterDashboard />

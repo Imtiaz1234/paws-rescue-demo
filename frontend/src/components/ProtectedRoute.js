@@ -9,7 +9,10 @@ const ProtectedRoute = ({ children, role }) => {
 
   if (!auth.token) return <Navigate to="/login" replace />;
 
-  if (role && auth.user?.role !== role) return <Navigate to="/" replace />;
+  // If specific role is required, check it
+  if (role && auth.user?.role !== role) {
+    return <div>Access denied. This page is for {role} users only.</div>;
+  }
 
   return children;
 };
