@@ -1,0 +1,8 @@
+.cat-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  padding: 10px;  /* Adds 10px padding on all sides */
+  box-sizing: border-box; /* Ensures padding doesn’t increase total element size */
+}
