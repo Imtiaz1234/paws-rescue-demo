@@ -1,3 +1,19 @@
+
+// Delete an adoption application
+exports.deleteApplication = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const application = await AdoptionApplication.findById(id);
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+    await AdoptionApplication.findByIdAndDelete(id);
+    res.json({ message: 'Application deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting application:', err);
+    res.status(500).json({ message: 'Server error deleting application' });
+  }
+};
 const AdoptionApplication = require('../models/AdoptionApplication');
 const Cat = require('../models/Cat');                                      // Added: import Cat model
 const mailer = require('../utils/mailer');
@@ -15,6 +31,12 @@ exports.getUserApplications = async (req, res) => {
 exports.submitApplication = async (req, res) => {
   try {
     const { cat, contactDetails, homeCheckPassed } = req.body;
+
+    // Check for existing application by this user for this cat
+    const existingApp = await AdoptionApplication.findOne({ user: req.user.id, cat });
+    if (existingApp) {
+      return res.status(400).json({ message: 'You have already applied to adopt this cat.' });
+    }
 
     const application = new AdoptionApplication({
       user: req.user.id,
@@ -62,11 +84,28 @@ exports.updateStatus = async (req, res) => {
     application.status = status;
     await application.save();
 
-    // If status is approved, update cat adoptionStatus to 'Adopted'
+    const cat = await Cat.findById(application.cat._id);
+
     if (status === 'Approved') {
-      const cat = await Cat.findById(application.cat._id);
       cat.adoptionStatus = 'Adopted';
       await cat.save();
+      console.log(`[AdoptionStatus] Cat ${cat.name} (${cat._id}) set to Adopted after approval.`);
+    }
+
+    if (status === 'Rejected') {
+      // Check if there are any other approved applications for this cat (excluding this just-rejected application)
+      const approvedCount = await AdoptionApplication.countDocuments({
+        cat: cat._id,
+        status: 'Approved',
+        _id: { $ne: application._id }
+      });
+      if (approvedCount === 0) {
+        cat.adoptionStatus = 'Available';
+        await cat.save();
+        console.log(`[AdoptionStatus] Cat ${cat.name} (${cat._id}) set to Available after rejection (no other approved applications).`);
+      } else {
+        console.log(`[AdoptionStatus] Cat ${cat.name} (${cat._id}) remains Adopted after rejection (other approved applications exist).`);
+      }
     }
 
     // Send email notification
@@ -88,5 +127,49 @@ exports.updateStatus = async (req, res) => {
   } catch (err) {
     console.error('Error updating status:', err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+/*
+exports.getAdoptionsForRescue = async (req, res) => {
+  try {
+    const rescueCenterId = req.user.rescueCenter;
+
+    // Find cats for this rescue center
+    const cats = await Cat.find({ rescueCenter: rescueCenterId }).select('_id');
+    const catIds = cats.map(cat => cat._id);
+
+    // Find adoption applications for these cats
+    const applications = await AdoptionApplication.find({ cat: { $in: catIds } })
+      .populate('cat', 'name adoptionStatus')
+      .populate('user', 'name email');
+
+    res.json(applications);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error fetching adoption applications for rescue' });
+  }
+};
+*/
+
+
+exports.getApplicationsForRescue = async (req, res) => {
+  try {
+    const rescueCenterId = req.user.rescueCenter;
+    const applications = await AdoptionApplication.find()
+      .populate({
+        path: 'cat',
+        match: { rescueCenter: rescueCenterId }
+      })
+      .populate('user', 'name email');
+    
+    // Filter out applications where cat is null (not belonging to rescue)
+    const filteredApps = applications.filter(app => app.cat != null);
+    res.json(filteredApps);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error fetching adoption applications for rescue' });
   }
 };

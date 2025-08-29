@@ -1,120 +1,3 @@
-/*
-import React, { useEffect, useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-
-const AdminDashboard = () => {
-  const { auth } = useContext(AuthContext);
-  const [users, setUsers] = useState([]);
-  const [rescues, setRescues] = useState([]);
-
-  useEffect(() => {
-    if (!auth.token) return;
-
-    // Fetch users
-    fetch('http://localhost:5000/api/admin/users', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-      .then(res => res.json())
-      .then(setUsers);
-
-    // Fetch rescue centers
-    fetch('http://localhost:5000/api/admin/rescue-centers', {
-      headers: { Authorization: `Bearer ${auth.token}` }
-    })
-      .then(res => res.json())
-      .then(setRescues);
-  }, [auth.token]);
-
-  if (!auth.user || auth.user.role !== 'Admin') return <div>Access Denied</div>;
-
-  // Handler to verify rescue center
-  const handleVerify = async (id) => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/admin/verify-rescue/${id}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${auth.token}` }
-      });
-
-      if (res.ok) {
-        const updatedRescue = await res.json();
-        setRescues(prev =>
-          prev.map(r => r._id.toString() === id.toString() ? { ...updatedRescue } : r)
-        );
-      } else {
-        console.error('Failed to verify rescue center');
-      }
-    } catch (err) {
-      console.error('Error verifying rescue center:', err);
-    }
-  };
-
-  // Handler to unverify rescue center
-  const handleUnverify = async (id) => {
-  try {
-    const res = await fetch(`http://localhost:5000/api/admin/unverify-rescue/${id}`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${auth.token}` }
-    });
-
-    console.log('API response status:', res.status);
-
-    if (res.ok) {
-      const updatedRescue = await res.json();
-      console.log('Updated rescue from API:', updatedRescue);
-
-      setRescues(prev =>
-        prev.map(r => r._id.toString() === id.toString() ? { ...updatedRescue } : r)
-      );
-    } else {
-      console.error('Failed to unverify rescue center');
-    }
-  } catch (err) {
-    console.error('Error unverifying rescue center:', err);
-  }
-};
-
-
-  return (
-    <div>
-      <h2>Admin Dashboard</h2>
-
-      <section>
-        <h3>Users</h3>
-        <ul>
-          {users.map(u => (
-            <li key={u._id}>
-              {u.name} ({u.email}) - Role: {u.role}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section>
-  <h3>Rescue Centers</h3>
-  <ul>
-    {rescues.map(r => (
-      <li key={r._id}>
-        {r.name} - Verified: {r.verified ? 'Yes' : 'No'}
-        {r.verified ? (
-          <button onClick={() => handleUnverify(r._id)} style={{ marginLeft: '10px' }}>
-            Unverify
-          </button>
-        ) : (
-          <button onClick={() => handleVerify(r._id)} style={{ marginLeft: '10px' }}>
-            Verify
-          </button>
-        )}
-      </li>
-    ))}
-  </ul>
-</section>
-
-    </div>
-  );
-};
-*/
-
-// src/pages/AdminDashboard.js
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
@@ -122,6 +5,7 @@ const AdminDashboard = () => {
   const { auth } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [rescues, setRescues] = useState([]);
+  const [applications, setApplications] = useState([]);
 
   useEffect(() => {
     if (!auth.token) return;
@@ -141,6 +25,14 @@ const AdminDashboard = () => {
       .then(res => res.json())
       .then(data => setRescues(data))
       .catch(err => console.error('Error fetching rescues:', err));
+
+    // Fetch adoption applications
+    fetch('http://localhost:5000/api/admin/adoptions', {
+      headers: { Authorization: `Bearer ${auth.token}` }
+    })
+      .then(res => res.json())
+      .then(data => setApplications(data))
+      .catch(err => console.error('Error fetching adoption applications:', err));
   }, [auth.token]);
 
   // Delete user function when "Flag User" is pressed
@@ -254,10 +146,42 @@ const AdminDashboard = () => {
           ))}
         </ul>
       </section>
+
+      <section>
+        <h3>Adoption Applications</h3>
+        {applications.length === 0 ? (
+          <p>No adoption applications submitted yet.</p>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Applicant Name</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Applicant Email</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Cat Name</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Contact Details</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Home Check Passed</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Status</th>
+                <th style={{ border: '1px solid #ccc', padding: '8px' }}>Submitted At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {applications.map(app => (
+                <tr key={app._id}>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>{app.user?.name || 'N/A'}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>{app.user?.email || 'N/A'}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>{app.cat?.name || 'N/A'}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>{app.contactDetails || 'N/A'}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>{app.homeCheckPassed ? 'Yes' : 'No'}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>{app.status}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>{new Date(app.submittedAt).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
     </div>
   );
 };
 
 export default AdminDashboard;
-
-

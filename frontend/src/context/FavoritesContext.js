@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 
 export const FavoritesContext = createContext();
 
@@ -24,9 +24,8 @@ export const FavoritesProvider = ({ children }) => {
   }, [favorites]);
 
   // Function to sync favorites with backend
-  const syncWithBackend = async (token) => {
+  const syncWithBackend = useCallback(async (token) => {
     if (!token) return;
-    
     try {
       setLoading(true);
       const res = await fetch('http://localhost:5000/api/user/favorites', {
@@ -34,7 +33,6 @@ export const FavoritesProvider = ({ children }) => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
       if (res.ok) {
         const backendFavorites = await res.json();
         setFavorites(backendFavorites);
@@ -44,25 +42,41 @@ export const FavoritesProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Function to add/remove favorite from backend
   const toggleFavoriteBackend = async (cat, token, isCurrentlyFavorite) => {
     try {
-      const method = isCurrentlyFavorite ? 'DELETE' : 'POST';
-      const res = await fetch(`http://localhost:5000/api/user/favorites/${cat._id}`, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      if (isCurrentlyFavorite) {
+        // Remove favorite: DELETE with catId as URL param
+        const res = await fetch(`http://localhost:5000/api/user/favorites/${cat._id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          return { success: true, data };
         }
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        return { success: true, data };
+        return { success: false };
+      } else {
+        // Add favorite: POST with catId in body
+        const res = await fetch('http://localhost:5000/api/user/favorites', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ catId: cat._id })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          return { success: true, data };
+        }
+        return { success: false };
       }
-      return { success: false };
     } catch (error) {
       console.error('Error toggling favorite:', error);
       return { success: false };

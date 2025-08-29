@@ -8,11 +8,23 @@
   gap: 1.5rem;
 }
 
+
 .story-card {
   border: 1px solid #ddd;
   padding: 1rem;
   border-radius: 8px;
   background: white;
+}
+.dark-mode .story-card {
+  background: #23272f;
+  color: #f1f1f1;
+  border: 1px solid #444;
+}
+.dark-mode .story-content {
+  color: #b0b0b0;
+}
+.dark-mode .story-date {
+  color: #888;
 }
 
 .story-content {

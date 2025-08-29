@@ -1,15 +1,52 @@
+
+/* Theme variables */
+:root {
+  --card-bg: #fff;
+  --card-border: #ddd;
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --card-shadow-hover: 0 4px 16px rgba(0,0,0,0.15);
+  --text-main: #222;
+  --favorite-bg: #f8f9fa;
+  --favorite-border: #e9ecef;
+  --favorite-active-bg: #fff0f0;
+  --favorite-active-border: #ff6b6b;
+  --favorite-active-color: #ff6b6b;
+  --button-bg: #3182ce;
+  --button-bg-hover: #2c5282;
+  --button-text: #fff;
+}
+
+.dark-mode {
+  --card-bg: #23272f;
+  --card-border: #444;
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  --card-shadow-hover: 0 4px 16px rgba(0,0,0,0.7);
+  --text-main: #f1f1f1;
+  --favorite-bg: #2d3748;
+  --favorite-border: #444;
+  --favorite-active-bg: #3a1a1a;
+  --favorite-active-border: #ff6b6b;
+  --favorite-active-color: #ff6b6b;
+  --button-bg: #4a90e2;
+  --button-bg-hover: #2363a9;
+  --button-text: #fff;
+}
+
 .cat-card {
-  border: 1px solid #ddd;
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 1.5rem;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+  color: var(--text-main);
+  max-width: 400px;
+  margin: 1rem auto;
 }
 
 .cat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .cat-image {
@@ -18,26 +55,29 @@
   object-fit: cover;
   border-radius: 8px;
   margin-bottom: 1rem;
+  background: #eee;
 }
 
+
 .favorite {
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
+  background: var(--favorite-bg);
+  border: 2px solid var(--favorite-border);
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s;
   margin-right: 1rem;
+  color: var(--text-main);
 }
 
 .favorite:hover:not(:disabled) {
-  background: #e9ecef;
+  background: var(--favorite-border);
 }
 
 .favorite.active {
-  background: #fff0f0;
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  background: var(--favorite-active-bg);
+  border-color: var(--favorite-active-border);
+  color: var(--favorite-active-color);
 }
 
 .favorite:disabled {
@@ -45,9 +85,10 @@
   cursor: not-allowed;
 }
 
+
 button {
-  background: #3182ce;
-  color: white;
+  background: var(--button-bg);
+  color: var(--button-text);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -56,10 +97,28 @@ button {
 }
 
 button:hover {
-  background: #2c5282;
+  background: var(--button-bg-hover);
 }
 
 
 button.favorite:disabled {
-  cursor: default; /* or cursor: auto; */
+  cursor: default;
+}
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  .cat-card {
+    padding: 1rem;
+    max-width: 98vw;
+  }
+  .cat-image {
+    height: 180px;
+  }
+  h3 {
+    font-size: 1.2rem;
+  }
+  button, .favorite {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
 }

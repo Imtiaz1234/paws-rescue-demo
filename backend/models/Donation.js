@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 
 const donationSchema = new mongoose.Schema({
   donor: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  amount: Number,
-  purpose: String, // e.g., "$200 for vaccines"
+  amount: { type: Number, required: true },
+  purpose: { type: String, required: true },
   date: { type: Date, default: Date.now },
-  status: String
+  status: String,
+  note: { type: String }, // For transparency logs
+  stripeId: { type: String }, // For Stripe mock
 });
 
 

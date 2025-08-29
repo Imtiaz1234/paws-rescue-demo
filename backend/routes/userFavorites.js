@@ -1,28 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User'); // Adjust path as needed
+const auth = require('../middleware/auth');
 
-// Middleware to check authentication - assume req.user.id is available after auth
-const isAuthenticated = (req, res, next) => {
-  if (!req.user || !req.user.id) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-  next();
-};
+// Use JWT auth middleware to set req.user
+router.use(auth);
 
-router.use(isAuthenticated);
-
-// Get favorites
+// Debug: Log when favorites route is hit
+console.log('userFavorites.js: Favorites route file loaded');
+// Get favorites (populated)
 router.get('/favorites', async (req, res) => {
+  console.log('GET /api/user/favorites route hit, req.user:', req.user);
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).populate('favorites');
     res.json(user.favorites || []);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Add favorite
+// Add favorite (return populated)
 router.post('/favorites', async (req, res) => {
   try {
     const { catId } = req.body;
@@ -31,19 +28,21 @@ router.post('/favorites', async (req, res) => {
       user.favorites.push(catId);
       await user.save();
     }
+    await user.populate('favorites');
     res.json(user.favorites);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Remove favorite
+// Remove favorite (return populated)
 router.delete('/favorites/:catId', async (req, res) => {
   try {
     const { catId } = req.params;
     const user = await User.findById(req.user.id);
-    user.favorites = user.favorites.filter(id => id !== catId);
+    user.favorites = user.favorites.filter(id => id.toString() !== catId);
     await user.save();
+    await user.populate('favorites');
     res.json(user.favorites);
   } catch (err) {
     res.status(500).json({ message: err.message });

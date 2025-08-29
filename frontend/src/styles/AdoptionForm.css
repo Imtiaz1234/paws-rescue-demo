@@ -1,4 +1,5 @@
 /* AdoptionForm.css */
+
 .adoption-form-container {
   max-width: 800px;
   margin: 2rem auto;
@@ -6,6 +7,19 @@
   background: #f9fafb;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+}
+.dark-mode .adoption-form-container {
+  background: #23272f;
+  color: #f1f1f1;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+.dark-mode .form-step {
+  background: #181a20;
+  color: #f1f1f1;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+}
+.dark-mode .form-step h3 {
+  color: #f1f1f1;
 }
 
 .progress-indicator {
@@ -178,4 +192,19 @@
   .form-navigation {
     flex-direction: column;
   }
+}
+
+
+.form-step label {
+  display: block;
+  margin-bottom: 1rem; /* space between fields */
+}
+
+.form-step input,
+.form-step select,
+.form-step textarea {
+  display: block;
+  width: 100%;  /* full width */
+  margin-top: 0.3rem; /* space between label text and input */
+  box-sizing: border-box;
 }

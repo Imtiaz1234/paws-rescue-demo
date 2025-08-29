@@ -1,7 +1,13 @@
-module.exports = function(requiredRole) {
+module.exports = function(requiredRoles) {
   return (req, res, next) => {
-    if (req.user.role !== requiredRole) {
-      return res.status(403).json({ message: 'Access denied' });
+    if (Array.isArray(requiredRoles)) {
+      if (!requiredRoles.includes(req.user.role)) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+    } else {
+      if (req.user.role !== requiredRoles) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
     }
     next();
   };

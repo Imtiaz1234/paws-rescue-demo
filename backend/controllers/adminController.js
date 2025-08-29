@@ -152,6 +152,29 @@ exports.unverifyRescue = async (req, res) => {
   }
 };
 
+/*
+exports.getRescueCenterAdoptions = async (req, res) => {
+  try {
+    const rescueCenterId = req.user.rescueCenter;
+    // Find cats owned by rescue center
+    const cats = await Cat.find({ rescueCenter: rescueCenterId }).select('_id');
+    const catIds = cats.map(c => c._id);
+
+    // Find adoption applications for these cats
+    const applications = await AdoptionApplication.find({ cat: { $in: catIds } })
+      .populate('cat', 'name')
+      .populate('user', 'name email');
+
+    res.json(applications);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error fetching adoption applications for rescue center' });
+  }
+};
+
+
+*/
+
 
 /*
 exports.unverifyRescue = async (req, res) => {

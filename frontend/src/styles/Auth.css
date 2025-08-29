@@ -1,3 +1,4 @@
+
 .auth-container {
   min-height: 100vh;
   display: flex;
@@ -5,6 +6,37 @@
   justify-content: center;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   padding: 2rem;
+}
+.dark-mode .auth-container {
+  background: linear-gradient(135deg, #23272f 0%, #181a20 100%);
+}
+.dark-mode .auth-card {
+  background: #23272f;
+  color: #f1f1f1;
+}
+.dark-mode .auth-card h2,
+.dark-mode .form-group label {
+  color: #f1f1f1;
+}
+.dark-mode .auth-subtitle {
+  color: #b0b0b0;
+}
+.dark-mode .form-group input {
+  background: #181a20;
+  color: #f1f1f1;
+  border: 2px solid #444;
+}
+.dark-mode .form-group input:disabled {
+  background-color: #23272f;
+}
+.dark-mode .auth-button {
+  background: #4a90e2;
+  color: #fff;
+}
+.dark-mode .error-message {
+  background: #4a2323;
+  color: #fed7d7;
+  border: 1px solid #a94442;
 }
 
 .auth-card {

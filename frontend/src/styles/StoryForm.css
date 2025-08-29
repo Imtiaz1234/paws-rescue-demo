@@ -1,7 +1,22 @@
+
 .story-form {
   background: #fff;
   padding: 1rem;
   border-radius: 8px;
+}
+.dark-mode .story-form {
+  background: #23272f;
+  color: #f1f1f1;
+}
+.dark-mode .form-group input,
+.dark-mode .form-group textarea {
+  background: #181a20;
+  color: #f1f1f1;
+  border: 1px solid #444;
+}
+.dark-mode button {
+  background-color: #4a90e2;
+  color: #fff;
 }
 
 .form-group {

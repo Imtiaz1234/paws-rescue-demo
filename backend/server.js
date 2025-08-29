@@ -50,12 +50,12 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/adoption', require('./routes/adoption'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/donations', require('./routes/donations'));
-app.use('/api/rescues', require('./routes/rescues'));
+//app.use('/api/rescues', require('./routes/rescue'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/stories', require('./routes/stories'));
 app.use('/api/user', require('./routes/userFavorites'));
-app.use('/api/admin', require('./routes/admin'));
-
+//app.use('/api/admin', require('./routes/admin'));
+app.use('/api/rescue', require('./routes/rescue'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

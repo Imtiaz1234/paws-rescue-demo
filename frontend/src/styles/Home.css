@@ -1,7 +1,35 @@
+
 .home-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+}
+
+.dark-mode .home-header h1,
+.dark-mode .home-header p,
+.dark-mode .cats-section h3 {
+  color: #f1f1f1;
+}
+
+.dark-mode .home-header p,
+.dark-mode .no-cats {
+  color: #b0b0b0;
+}
+
+.dark-mode .search-section {
+  background: #23272f;
+  color: #f1f1f1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.dark-mode .error-banner {
+  background: #4a2323;
+  color: #fed7d7;
+  border: 1px solid #a94442;
+}
+
+.dark-mode .cats-section h3 {
+  color: #f1f1f1;
 }
 
 .home-header {
