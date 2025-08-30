@@ -1,3 +1,17 @@
+.dark-mode, body.dark-mode, html.dark-mode, .dark-mode *, .dark-mode *::before, .dark-mode *::after, body.dark-mode *, body.dark-mode *::before, body.dark-mode *::after, html.dark-mode *, html.dark-mode *::before, html.dark-mode *::after {
+  background-color: #181a20 !important;
+  color: #f1f1f1 !important;
+  border-color: #444 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  outline-color: #444 !important;
+}
+.dark-mode, body.dark-mode, .dark-mode * {
+  background-color: #181a20 !important;
+  color: #f1f1f1 !important;
+  border-color: #444 !important;
+  box-shadow: none !important;
+}
 .light-mode {
   --navbar-bg: #fff;
   --navbar-text: #222;

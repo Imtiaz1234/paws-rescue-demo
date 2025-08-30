@@ -29,8 +29,33 @@ exports.getUserApplications = async (req, res) => {
 };
 
 exports.submitApplication = async (req, res) => {
+  console.log('Adoption application received:', req.body);
   try {
-    const { cat, contactDetails, homeCheckPassed } = req.body;
+    const {
+      cat,
+      fullName,
+      email,
+      phone,
+      address,
+      homeType,
+      rentOwn,
+      householdMembers,
+      existingPets,
+      smokingHome,
+      outdoorSpace,
+      petExperience,
+      workSchedule,
+      petCareResponsible,
+      willingVetCare,
+      surrenderedPetBefore,
+      reasonAdopting,
+      allergies,
+      homeEnvironment,
+      additionalDetails,
+      agreePolicies,
+      contactDetails,
+      homeCheckPassed
+    } = req.body;
 
     // Check for existing application by this user for this cat
     const existingApp = await AdoptionApplication.findOne({ user: req.user.id, cat });
@@ -41,6 +66,26 @@ exports.submitApplication = async (req, res) => {
     const application = new AdoptionApplication({
       user: req.user.id,
       cat,
+      fullName,
+      email,
+      phone,
+      address,
+      homeType,
+      rentOwn,
+      householdMembers,
+      existingPets,
+      smokingHome,
+      outdoorSpace,
+      petExperience,
+      workSchedule,
+      petCareResponsible,
+      willingVetCare,
+      surrenderedPetBefore,
+      reasonAdopting,
+      allergies,
+      homeEnvironment,
+      additionalDetails,
+      agreePolicies,
       contactDetails,
       homeCheckPassed,
       status: 'Pending'
@@ -49,10 +94,22 @@ exports.submitApplication = async (req, res) => {
     await application.save();
 
     // Update cat adoptionStatus to 'Pending' if currently 'Available'
-    const catDoc = await Cat.findById(cat);
+    const catDoc = await Cat.findById(cat).populate('rescueCenter');
     if (catDoc.adoptionStatus === 'Available') {
       catDoc.adoptionStatus = 'Pending';
       await catDoc.save();
+    }
+
+    // Send all application details to the rescue center's email if available
+    if (catDoc.rescueCenter && catDoc.rescueCenter.email) {
+      // Get user info
+      const user = await User.findById(req.user.id);
+      const emailBody = `New Adoption Application Submitted\n\nUser Name: ${user.name}\nUser Email: ${user.email}\nCat: ${catDoc.name}\nContact Details: ${contactDetails}\nHome Check Passed: ${homeCheckPassed ? 'Yes' : 'No'}\nSubmitted At: ${application.submittedAt}`;
+      await mailer.sendEmail(
+        catDoc.rescueCenter.email,
+        `New Adoption Application for ${catDoc.name}`,
+        emailBody
+      );
     }
 
     res.status(201).json(application);
@@ -158,15 +215,17 @@ exports.getAdoptionsForRescue = async (req, res) => {
 exports.getApplicationsForRescue = async (req, res) => {
   try {
     const rescueCenterId = req.user.rescueCenter;
+    console.log('Rescue Center ID:', rescueCenterId);
     const applications = await AdoptionApplication.find()
       .populate({
         path: 'cat',
         match: { rescueCenter: rescueCenterId }
       })
       .populate('user', 'name email');
-    
+    console.log('All applications found:', applications.length);
     // Filter out applications where cat is null (not belonging to rescue)
     const filteredApps = applications.filter(app => app.cat != null);
+    console.log('Filtered applications for rescue:', filteredApps.length);
     res.json(filteredApps);
   } catch (error) {
     console.error(error);

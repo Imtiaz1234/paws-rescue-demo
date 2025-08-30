@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
@@ -6,6 +7,9 @@ const roleCheck = require('../middleware/roleCheck');
 const User = require('../models/User'); // Add User model here for delete route
 //const authMiddleware = require('../middleware/auth');
 //const adminRoleCheck = require('../middleware/roleCheck');
+
+// Admin deletes an adoption application
+router.delete('/adoptions/:id', auth, roleCheck('Admin'), adminController.deleteAdoptionApplication);
 
 
 

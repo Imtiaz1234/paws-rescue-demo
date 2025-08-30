@@ -6,6 +6,22 @@ const auth = require('../middleware/auth');
 const authMiddleware = require('../middleware/auth');
 const adminRoleCheck = require('../middleware/roleCheck');
 
+// Update user name
+router.patch('/update-name', auth, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+    const user = await User.findByIdAndUpdate(req.user.id, { name }, { new: true });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ name: user.name });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 // Get user favorites with full cat data
 router.get('/favorites', auth, async (req, res) => {
   try {

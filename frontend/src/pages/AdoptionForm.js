@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/AdoptionForm.css';
 
-// Step 1: Personal Information
-const PersonalInfoForm = ({ formData, onChange, nextStep }) => {
+// Step 1: Personal Information (with editable Name and Email)
+const PersonalInfoForm = ({ formData, onChange, nextStep, user }) => {
   const handleChange = (e) => {
     onChange({
       ...formData,
@@ -20,27 +20,22 @@ const PersonalInfoForm = ({ formData, onChange, nextStep }) => {
   return (
     <form onSubmit={handleSubmit} className="form-step">
       <h3>Step 1: Personal Information</h3>
-      
       <label>
         Full Name:
         <input type="text" name="fullName" value={formData.fullName || ''} onChange={handleChange} required />
       </label>
-
       <label>
         Email:
         <input type="email" name="email" value={formData.email || ''} onChange={handleChange} required />
       </label>
-
       <label>
         Phone:
         <input type="tel" name="phone" value={formData.phone || ''} onChange={handleChange} required />
       </label>
-
       <label>
         Address:
         <input type="text" name="address" value={formData.address || ''} onChange={handleChange} required />
       </label>
-
       <div className="form-navigation">
         <button type="submit">Next →</button>
       </div>
@@ -168,7 +163,7 @@ const ExperienceForm = ({ formData, onChange, nextStep, prevStep }) => {
 };
 
 // Step 4: Additional Information & Review
-const ReviewForm = ({ formData, onChange, prevStep, onSubmit, loading }) => {
+const ReviewForm = ({ formData, onChange, prevStep, onSubmit, loading, user }) => {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     onChange({
@@ -208,8 +203,8 @@ const ReviewForm = ({ formData, onChange, prevStep, onSubmit, loading }) => {
 
       <div className="review-section">
         <h4>Application Summary:</h4>
-        <p><strong>Name:</strong> {formData.fullName}</p>
-        <p><strong>Email:</strong> {formData.email}</p>
+        <p><strong>Name:</strong> {user?.name || 'N/A'}</p>
+        <p><strong>Email:</strong> {user?.email || 'N/A'}</p>
         <p><strong>Phone:</strong> {formData.phone}</p>
         <p><strong>Home Type:</strong> {formData.homeType}</p>
         <p><strong>Pet Experience:</strong> {formData.petExperience || 'None provided'}</p>
@@ -246,7 +241,32 @@ const AdoptionForm = () => {
   const { auth } = useContext(AuthContext);
   const { catId } = useParams();
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({});
+  // Pre-populate name and email from user
+  const user = auth.user || auth;
+  const [formData, setFormData] = useState({
+    fullName: user?.name || '',
+    email: user?.email || '',
+    phone: '',
+    address: '',
+    homeType: '',
+    rentOwn: '',
+    householdMembers: '',
+    existingPets: '',
+    smokingHome: false,
+    outdoorSpace: false,
+    petExperience: '',
+    workSchedule: '',
+    petCareResponsible: '',
+    willingVetCare: false,
+    surrenderedPetBefore: '',
+    reasonAdopting: '',
+    allergies: '',
+    homeEnvironment: '',
+    additionalDetails: '',
+    agreePolicies: false,
+    contactDetails: '',
+    homeCheckPassed: false
+  });
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -270,6 +290,7 @@ const AdoptionForm = () => {
     setMessage('');
 
     try {
+      // Use formData.fullName and formData.email (editable)
       const res = await fetch('http://localhost:5000/api/adoption', {
         method: 'POST',
         headers: {
@@ -284,7 +305,30 @@ const AdoptionForm = () => {
 
       setMessage('Adoption application submitted successfully!');
       // Reset form or redirect to success page
-      setFormData({});
+      setFormData({
+        fullName: user?.name || '',
+        email: user?.email || '',
+        phone: '',
+        address: '',
+        homeType: '',
+        rentOwn: '',
+        householdMembers: '',
+        existingPets: '',
+        smokingHome: false,
+        outdoorSpace: false,
+        petExperience: '',
+        workSchedule: '',
+        petCareResponsible: '',
+        willingVetCare: false,
+        surrenderedPetBefore: '',
+        reasonAdopting: '',
+        allergies: '',
+        homeEnvironment: '',
+        additionalDetails: '',
+        agreePolicies: false,
+        contactDetails: '',
+        homeCheckPassed: false
+      });
       setStep(1);
     } catch (err) {
       setMessage(err.message);
@@ -296,7 +340,7 @@ const AdoptionForm = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <PersonalInfoForm formData={formData} onChange={setFormData} nextStep={nextStep} />;
+        return <PersonalInfoForm formData={formData} onChange={setFormData} nextStep={nextStep} user={user} />;
       case 2:
         return <HouseholdForm formData={formData} onChange={setFormData} nextStep={nextStep} prevStep={prevStep} />;
       case 3:
@@ -309,10 +353,11 @@ const AdoptionForm = () => {
             prevStep={prevStep}
             onSubmit={handleSubmit}
             loading={loading}
+            user={user}
           />
         );
       default:
-        return <PersonalInfoForm formData={formData} onChange={setFormData} nextStep={nextStep} />;
+        return <PersonalInfoForm formData={formData} onChange={setFormData} nextStep={nextStep} user={user} />;
     }
   };
 

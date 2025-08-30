@@ -1,11 +1,44 @@
 
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import DarkModeToggle from './DarkModelToggle';
 
 const Navbar = () => {
-  const { auth, logout } = useContext(AuthContext);
+  const { auth, logout, login, setUser } = useContext(AuthContext);
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState(auth.user?.name || '');
+  const [saving, setSaving] = useState(false);
+
+  const handleNameSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('http://localhost:5000/api/user/update-name', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`
+        },
+        body: JSON.stringify({ name: newName })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.token) {
+          // Use the new token with updated name
+          login(data.token);
+        } else if (auth.user && data.name && data.name !== auth.user.name) {
+          setUser({ ...auth.user, name: data.name });
+        } else {
+          login(auth.token); // fallback: re-decode user from token
+        }
+        setEditingName(false);
+      } else {
+        alert('Failed to update name');
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
 
   return (
@@ -75,9 +108,36 @@ const Navbar = () => {
           </>
         )}
       </div>
-  <div style={{ flexShrink: 0 }}>
-  <DarkModeToggle />
+  <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+    {auth.token && auth.user && (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        {editingName ? (
+          <>
+            <input
+              type="text"
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              disabled={saving}
+              style={{ borderRadius: 4, padding: '2px 6px', fontSize: 14 }}
+            />
+            <button onClick={handleNameSave} disabled={saving || !newName.trim()} style={{ fontSize: 14 }}>
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+            <button onClick={() => { setEditingName(false); setNewName(auth.user.name); }} disabled={saving} style={{ fontSize: 14 }}>
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            <span style={{ fontWeight: 500, fontSize: 15, display: 'inline-block' }} title={auth.user.name}>
+              {auth.user.name}
+            </span>
+          </>
+        )}
       </div>
+    )}
+    <DarkModeToggle />
+  </div>
   </nav>
   );
 };

@@ -1,3 +1,23 @@
+// Admin: Delete adoption application and update cat status
+exports.deleteAdoptionApplication = async (req, res) => {
+  try {
+    const appId = req.params.id;
+    const application = await AdoptionApplication.findById(appId);
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+    // Remove the application
+    await AdoptionApplication.findByIdAndDelete(appId);
+    // Set cat status to 'Available' (since 'Not Yet Adopted' is not a valid enum value)
+    if (application.cat) {
+      await Cat.findByIdAndUpdate(application.cat, { adoptionStatus: 'Available' });
+    }
+    res.json({ message: 'Application deleted and cat status updated.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error deleting application' });
+  }
+};
 const RescueCenter = require('../models/RescueCenter');
 const User = require('../models/User');
 const AdoptionApplication = require('../models/AdoptionApplication');

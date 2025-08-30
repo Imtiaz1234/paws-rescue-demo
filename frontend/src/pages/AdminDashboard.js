@@ -1,7 +1,27 @@
+
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 const AdminDashboard = () => {
+  // Remove adoption application
+  const handleRemoveApplication = async (appId) => {
+    if (!window.confirm('Are you sure you want to remove this adoption application?')) return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/admin/adoptions/${appId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${auth.token}` }
+      });
+      if (res.ok) {
+        setApplications(prev => prev.filter(app => app._id !== appId));
+      } else {
+        const error = await res.json();
+        alert(`Failed to remove application: ${error.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error removing application:', error);
+      alert('An unexpected error occurred while removing the application.');
+    }
+  };
   const { auth } = useContext(AuthContext);
   const [users, setUsers] = useState([]);
   const [rescues, setRescues] = useState([]);
@@ -174,6 +194,9 @@ const AdminDashboard = () => {
                   <td style={{ border: '1px solid #ccc', padding: '8px' }}>{app.homeCheckPassed ? 'Yes' : 'No'}</td>
                   <td style={{ border: '1px solid #ccc', padding: '8px' }}>{app.status}</td>
                   <td style={{ border: '1px solid #ccc', padding: '8px' }}>{new Date(app.submittedAt).toLocaleString()}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                    <button onClick={() => handleRemoveApplication(app._id)} style={{ color: 'red' }}>Remove</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -182,6 +205,6 @@ const AdminDashboard = () => {
       </section>
     </div>
   );
-};
+}
 
 export default AdminDashboard;

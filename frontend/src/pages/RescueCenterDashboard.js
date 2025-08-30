@@ -148,14 +148,30 @@ import { AuthContext } from '../context/AuthContext';
 const RescueCenterDashboard = () => {
   const { auth } = useContext(AuthContext);
   const [cats, setCats] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (auth.token) {
       fetchMyCats();
+      fetchRescueApplications();
     }
   }, [auth.token]);
+  // Fetch adoption applications for this rescue center
+  const fetchRescueApplications = async () => {
+    try {
+      const res = await fetch('http://localhost:5000/api/rescue/rescue-adoptions', {
+        headers: {
+          Authorization: `Bearer ${auth.token}`
+        }
+      });
+      const data = await res.json();
+      setApplications(data);
+    } catch (error) {
+      console.error('Failed to fetch rescue applications:', error);
+    }
+  };
 
   const fetchMyCats = async () => {
     try {
@@ -209,7 +225,6 @@ const RescueCenterDashboard = () => {
       {showAddForm && (
         <div style={{ marginBottom: '2rem', padding: '1.5rem', border: '1px solid #ddd', borderRadius: '8px' }}>
           <h3>Add New Cat</h3>
-          {/* You can either embed the form here or link to CatRegister page */}
           <p>
             <a href="/cat-register" style={{ color: '#3182ce', textDecoration: 'underline' }}>
               Go to Cat Registration Form
@@ -253,6 +268,32 @@ const RescueCenterDashboard = () => {
             </div>
           ))}
         </div>
+      )}
+
+      <h2 style={{ marginTop: '2rem' }}>Adoption Applications for Your Cats</h2>
+      {applications.length === 0 ? (
+        <p>No adoption applications yet.</p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+          <thead>
+            <tr>
+              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Cat</th>
+              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Applicant Name</th>
+              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Applicant Email</th>
+              <th style={{ border: '1px solid #ddd', padding: '8px' }}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {applications.map(app => (
+              <tr key={app._id}>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{app.cat?.name || 'N/A'}</td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{app.user?.name || 'N/A'}</td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{app.user?.email || 'N/A'}</td>
+                <td style={{ border: '1px solid #ddd', padding: '8px' }}>{app.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
